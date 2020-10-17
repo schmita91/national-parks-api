@@ -3,11 +3,16 @@
 const API_KEY = 'dI8kfxBM2eD4LaOVtCneEq0TfC1TvTmTf6DrfEJz';
 const endpoint = 'https://developer.nps.gov/api/v1/parks';
 
-function formatQueryParams(params) {
+function formatQueryParams(params, readyStateCodes) {
     const queryItems = Object.keys(params)
-        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`)
-    return queryItems.join('&');
+        .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`);
+        console.log(queryItems);
+    const stateCodeString = readyStateCodes;
+    console.log(stateCodeString);
+    console.log(queryItems);
+    return queryItems.join('&') + '&' + stateCodeString;
 }
+
 
 function displayResults(responseJson, maxResults) {
     $('#js-results-list').empty();
@@ -25,13 +30,20 @@ function displayResults(responseJson, maxResults) {
 function findParks(query, maxResults = 10) {
     const params = {
         api_key: API_KEY,
-        stateCode: query,
         limit: maxResults,
     }
 
+    function formatStateCodes (query){let stateCodeString = ('stateCode=' + query);
+    console.log(stateCodeString);
+    return stateCodeString;
+    }
+
+    const readyStateCodes = formatStateCodes(query);
+
     
-    const queryString = formatQueryParams(params);
+    const queryString = formatQueryParams(params, readyStateCodes);
     const url = endpoint + '?' + queryString;
+    console.log(url);
     
 
     fetch(url)
@@ -53,8 +65,10 @@ function watchForm() {
     $('form').submit(function (event) {
         event.preventDefault();
         const state = $('#js-state').val();
+        const stateArray = state.split(',');
+        console.log(stateArray);
         const maxResults = $('#js-max-results').val();
-        findParks(state, maxResults);
+        findParks(stateArray, maxResults);
     });
 }
 
